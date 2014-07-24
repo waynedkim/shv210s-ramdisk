@@ -9,7 +9,8 @@
 
 CMD=$1
 IMG_PATH=$2
-FILE_NAME=${IMG_PATH##*/}
+FILE_NAME=$(basename ${IMG_PATH})
+FILE_DIR=$(dirname ${IMG_PATH})
 WORK_DIR="ramfs_factory"
 
 if [ -z ${CMD} ]; then
@@ -22,6 +23,10 @@ if [ -z ${IMG_PATH} ]; then
 	echo "No target ramdisk specified."
 	echo "* Usage: $0 [pack/unpack] [ramdisk.img]"
 	exit
+fi
+
+if [ "${FILE_DIR}" == "." ]; then
+	IMG_PATH="$(pwd)/${FILE_NAME}"
 fi
 
 case ${CMD} in
@@ -41,7 +46,6 @@ case ${CMD} in
 			echo "Working directory is at ${WORK_DIR}"
 			cd ${WORK_DIR}
 			rm -rf *
-			IMG_PATH="../${IMG_PATH}"
 		fi
 
 		# Check if it is gzip file or not
@@ -74,7 +78,6 @@ case ${CMD} in
 		echo "Packing cpio..."
 		cd ${WORK_DIR}
 		find . | cpio -o -H newc > ${IMG_PATH}
-		cd ..
 		echo "Packing with gzip."
 		gzip -c ${IMG_PATH} > ${IMG_PATH}.gz
 		mv ${IMG_PATH}.gz ${IMG_PATH}
