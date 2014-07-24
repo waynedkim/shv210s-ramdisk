@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <libgen.h>
+#include <sys/stat.h>
 
 #include "mincrypt/sha.h"
 #include "bootimg.h"
@@ -87,6 +88,10 @@ int main(int argc, char** argv)
     
     if (pagesize == 0) {
         pagesize = header.page_size;
+    }
+
+    if (access(directory, W_OK)) {
+	mkdir(directory, S_IRWXU|S_IRGRP|S_IWGRP);
     }
     
     //printf("cmdline...\n");
